@@ -1,0 +1,14 @@
+{
+	"$schema": "./node_modules/typescript/lib/tsconfig.json",
+	"compilerOptions": {
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "react"
+	},
+	"files": [],
+	"references": [
+		{ "path": "./tsconfig.app.json" },
+		{ "path": "./tsconfig.node.json" }
+	]
+}
