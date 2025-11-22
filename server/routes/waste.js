@@ -49,6 +49,39 @@ router.post("/", requireAuth(), async (req, res) => {
 	}
 });
 
+// After creating waste record and updating points:
+router.post("/", async (req, res) => {
+  try {
+    const { clientId, materialType, weight, location } = req.body;
+    
+    // Create waste record
+    const record = await Waste.create({
+      clientId,
+      materialType,
+      weight,
+      location, // Make sure location is saved
+      // ... other fields
+    });
+    
+    // Calculate and update points
+    const client = await Client.findById(clientId);
+    if (client) {
+      // Update points logic here...
+      
+      // **NEW: Update client's last known location**
+      if (location && location.lat && location.lon) {
+        await Client.findByIdAndUpdate(clientId, { 
+          $set: { location: { lat: location.lat, lon: location.lon } }
+        });
+      }
+    }
+    
+    res.json({ success: true, data: record });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // list records
 router.get("/", requireAuth(), async (req, res) => {
 	const { client } = req.query;

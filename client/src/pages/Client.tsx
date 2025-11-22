@@ -7,6 +7,10 @@ interface Client {
 	name?: string;
 	houseNumber?: string;
 	pointsBalance?: number;
+	location?: {
+		lat?: number;
+		lon?: number;
+	};
 }
 
 export default function Clients() {

@@ -6,8 +6,9 @@ import type {
 	OperatorDTO,
 } from "../types/auth";
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:5000";
-const TOKEN_KEY = "eco_token";
+export const API_BASE =
+	import.meta.env.VITE_API_BASE || "http://localhost:5000";
+export const TOKEN_KEY = "eco_token";
 
 /* ----------------- runtime type guards ----------------- */
 

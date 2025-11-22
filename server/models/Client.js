@@ -1,18 +1,22 @@
+// server/models/Client.js
 import mongoose from "mongoose";
 
-const clientSchema = new mongoose.Schema({
-	client_id: { type: String, index: true, unique: true, required: true },
-	houseNumber: String,
-	name: String,
-	phone: String,
-	email: String,
-	address: String,
-	latitude: Number,
-	longitude: Number,
-	billing_status: { type: String, default: "active" },
-	pointsBalance: { type: Number, default: 0 },
-	createdAt: { type: Date, default: Date.now },
-	updatedAt: { type: Date, default: Date.now },
-});
+const clientSchema = new mongoose.Schema(
+	{
+		client_id: { type: String, index: true },
+		name: { type: String, required: true },
+		phone: { type: String, required: true, unique: true },
+		email: { type: String },
+		houseNumber: { type: String },
+		pointsBalance: { type: Number, default: 0 },
+		 location: {
+			lat: { type: Number },
+			lon: { type: Number },
+		},
+		active: { type: Boolean, default: true },
+		passwordHash: { type: String }, // for client logins
+	},
+	{ timestamps: true }
+);
 
 export default mongoose.model("Client", clientSchema);
