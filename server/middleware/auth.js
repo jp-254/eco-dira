@@ -7,20 +7,21 @@ export function requireAuth(requiredRole) {
 	return (req, res, next) => {
 		const raw = req.headers.authorization || "";
 		const token = raw.startsWith("Bearer ") ? raw.slice(7) : raw;
-		if (!token) return res.status(401).json({ error: "No token provided" });
+
+		if (!token) return res.status(401).json({ error: "No token" });
+
 		try {
 			const payload = jwt.verify(token, JWT_SECRET);
-			req.user = payload; // { sub, role, iat, exp }
-			if (
-				requiredRole &&
-				payload.role !== requiredRole &&
-				payload.role !== "admin"
-			) {
+			req.user = payload; // { sub, role }
+
+			if (requiredRole && payload.role !== requiredRole) {
 				return res.status(403).json({ error: "Forbidden" });
 			}
+
 			next();
-		} catch (err) {
+		} catch {
 			return res.status(401).json({ error: "Invalid token" });
 		}
 	};
 }
+

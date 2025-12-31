@@ -159,7 +159,7 @@ export default function ClientProfile() {
 							rel="noopener noreferrer"
 							href={`https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lon}`}
 						
-							Open in Google Maps →
+							Open in Google Maps ;.
 						</a>
 					</div>
 				</div>
