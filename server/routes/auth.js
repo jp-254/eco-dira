@@ -33,9 +33,16 @@ router.get("/me", async (req, res) => {
 			return res.json({ role, admin });
 		}
 		if (role === "operator") {
-			const op = await Operator.findById(sub).select("name email role");
-			return res.json({ role, operator: op });
+			const op = await Operator.findById(sub).select("email role");
+			return res.json({
+				role,
+				operator: {
+					id: op._id.toString(),
+					email: op.email,
+				},
+			});
 		}
+
 		// client
 		const client = await Client.findById(sub).select(
 			"name phone client_id houseNumber pointsBalance"
@@ -143,7 +150,16 @@ router.post(
 			const token = jwt.sign({ sub: op._id, role: "operator" }, JWT_SECRET, {
 				expiresIn: "7d",
 			});
-			res.json({ token, operator: op });
+			res.json({
+				token,
+				operator: {
+					id: op._id.toString(),
+					email: op.email,
+					role: "operator",
+				},
+			});
+
+
 		} catch (err) {
 			console.error(err);
 			res.status(500).json({ error: "Operator login failed" });

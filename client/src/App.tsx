@@ -8,7 +8,11 @@ import AdminLogin from "./pages/AdminLogin";
 import ClientLogin from "./pages/ClientLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import ClientProfile from "./pages/ClientProfile";
-import ProtectedRoute from "./components/ProtectedRoute";
+import OperatorLogin from "./pages/OperatorLogin";
+
+import RequireAuth from "./components/RequireAuth";
+
+
 import { API_BASE, getToken } from "./services/auth";
 
 interface AuthUser {
@@ -85,6 +89,9 @@ export default function App() {
 								<Link to="/client-login" className="hover:underline">
 									Client Login
 								</Link>
+								<Link to="/operator-login" className="hover:underline">
+									Operator
+								</Link>
 							</>
 						)}
 
@@ -113,22 +120,32 @@ export default function App() {
 					<Route path="/register" element={<RegisterPage />} />
 					<Route path="/client-login" element={<ClientLogin />} />
 					<Route path="/clients" element={<Clients />} />
-					<Route path="/log" element={<WasteForm />} />
+
 					<Route path="/admin-login" element={<AdminLogin />} />
+					<Route path="/operator-login" element={<OperatorLogin />} />
 					<Route
 						path="/admin"
 						element={
-							<ProtectedRoute>
+							<RequireAuth role="admin">
 								<AdminDashboard />
-							</ProtectedRoute>
+							</RequireAuth>
 						}
 					/>
 					<Route
+						path="/log"
+						element={
+							<RequireAuth role="operator">
+								<WasteForm />
+							</RequireAuth>
+						}
+					/>
+
+					<Route
 						path="/client/:id"
 						element={
-							<ProtectedRoute>
+							<RequireAuth role="client">
 								<ClientProfile />
-							</ProtectedRoute>
+							</RequireAuth>
 						}
 					/>
 				</Routes>

@@ -1,10 +1,12 @@
-// src/pages/AdminLogin.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { adminLogin, saveToken } from "../services/auth";
+import { adminLogin } from "../services/auth";
+import { useAuth } from "../hooks/useAuth";
 
 export default function AdminLogin() {
 	const navigate = useNavigate();
+	const { login } = useAuth();
+
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState<string | null>(null);
@@ -16,16 +18,9 @@ export default function AdminLogin() {
 		try {
 			const res = await adminLogin({ username, password });
 
-			// runtime guards for optional fields returned by the service
-			if (!res || typeof res.token !== "string") {
-				throw new Error("Login did not return a token");
-			}
-			if (!res.admin) {
-				throw new Error("Login did not return admin data");
-			}
+			// 🔑 THIS IS THE KEY FIX
+			await login(res.token);
 
-			saveToken(res.token);
-			console.log("Admin logged in:", res.admin.username, res.admin.role);
 			navigate("/admin", { replace: true });
 		} catch (err) {
 			setError((err as Error).message);
@@ -33,7 +28,7 @@ export default function AdminLogin() {
 	}
 
 	return (
-		<form onSubmit={handleSubmit} className="p-4">
+		<form onSubmit={handleSubmit} className="p-4 max-w-md mx-auto">
 			<h1 className="text-2xl mb-4 font-bold">Admin Login</h1>
 
 			<input
@@ -51,9 +46,7 @@ export default function AdminLogin() {
 				placeholder="Password"
 			/>
 
-			<button
-				type="submit"
-				className="bg-green-600 text-white p-2 rounded w-full">
+			<button className="bg-green-600 text-white p-2 rounded w-full">
 				Login
 			</button>
 

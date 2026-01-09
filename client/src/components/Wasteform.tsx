@@ -36,7 +36,7 @@ export default function WasteForm() {
 		// Check authentication and operator role
 		const token = localStorage.getItem("token");
 		if (!token) {
-			setAuthError("Please login as operator");
+			setAuthError("...");
 			return;
 		}
 
