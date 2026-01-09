@@ -9,47 +9,74 @@ import bcrypt from "bcrypt";
 dotenv.config();
 
 const run = async () => {
-	await mongoose.connect(process.env.MONGO_URI);
-	await Client.deleteMany({});
-	await Program.deleteMany({});
-	await Admin.deleteMany({});
-	await Operator.deleteMany({});
+	try {
+		await mongoose.connect(process.env.MONGO_URI);
+		console.log("✅ Connected to MongoDB");
 
-	const pw = await bcrypt.hash("admin1234", 10);
-	await Admin.create({ username: "admin", passwordHash: pw });
+		// Prevent destructive deletes in production
+		if (process.env.NODE_ENV === "production") {
+			console.warn("⚠️ Refusing to delete data in production");
+			process.exit(1);
+		}
 
-	const c1 = await Client.create({
-		client_id: "c1",
-		houseNumber: "A1",
-		name: "Wanjiru",
-		phone: "+254712345678",
-		pointsBalance: 0,
-	});
-	const c2 = await Client.create({
-		client_id: "c2",
-		houseNumber: "B2",
-		name: "Mwangi",
-		phone: "+254712345679",
-		pointsBalance: 0,
-	});
-	const op = await Operator.create({
-		name: "Operator One",
-		email: "op1@example.com",
-		phone: "+254700000001",
-		assignedAreas: ["Zone A"],
-	});
+		// Clear collections in dev only
+		await Client.deleteMany({});
+		await Program.deleteMany({});
+		await Admin.deleteMany({});
+		await Operator.deleteMany({});
 
-	await Program.create({
-		title: "Mangu High School Training",
-		location: "Mangu",
-		startTime: new Date(),
-		live: false,
-	});
-	console.log("Seed complete - admin credentials: admin / admin1234");
-	process.exit(0);
+		// Use env vars for admin credentials
+		const adminUsername = process.env.ADMIN_USERNAME || "admin";
+		const adminPassword = process.env.ADMIN_PASSWORD || "changeMe123!";
+		const pwHash = await bcrypt.hash(adminPassword, 10);
+
+		await Admin.create({ username: adminUsername, passwordHash: pwHash });
+
+		// Seed sample clients
+		await Client.create([
+			{
+				client_id: "c1",
+				houseNumber: "A1",
+				name: "Wanjiru",
+				phone: "+254712345678",
+				pointsBalance: 0,
+			},
+			{
+				client_id: "c2",
+				houseNumber: "B2",
+				name: "Mwangi",
+				phone: "+254712345679",
+				pointsBalance: 0,
+			},
+		]);
+
+		// Seed operator
+		const operatorPassword = process.env.OPERATOR_PASSWORD || "operator123";
+		const operatorHash = await bcrypt.hash(operatorPassword, 10);
+
+		await Operator.create({
+			name: "Operator One",
+			email: "op1@example.com",
+			phone: "+254700000001",
+			passwordHash: operatorHash,
+			role: "operator",
+			assignedAreas: ["Zone A"],
+		});
+
+		// Seed program
+		await Program.create({
+			title: "Mangu High School Training",
+			location: "Mangu",
+			startTime: new Date(),
+			live: false,
+		});
+
+		console.log("🌱 Seed complete - admin user created");
+		process.exit(0);
+	} catch (err) {
+		console.error("❌ Seeding failed:", err);
+		process.exit(1);
+	}
 };
 
-run().catch((e) => {
-	console.error(e);
-	process.exit(1);
-});
+run();

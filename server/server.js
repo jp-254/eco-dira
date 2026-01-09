@@ -28,7 +28,7 @@ app.use("/api/clients", clientsRouter);
 app.use("/api/waste", wasteRouter);
 app.use("/api/programs", programsRouter);
 app.use("/api/leaderboard", leaderboardRouter); // ✅ NEW
-app.use("/api/rewards", rewardsRoutes); // ✅ NEW
+app.use("/api/rewards", rewardsRouter); // ✅ NEW
 
 // Root route
 app.get("/", (req, res) => {

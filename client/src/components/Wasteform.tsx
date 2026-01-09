@@ -21,6 +21,7 @@ interface WastePayload {
 
 export default function WasteForm() {
 	const [clients, setClients] = useState<Client[]>([]);
+	const [authError, setAuthError] = useState("");
 	const [form, setForm] = useState({
 		clientId: "",
 		type: "plastic",
@@ -31,17 +32,37 @@ export default function WasteForm() {
 	});
 	const [message, setMessage] = useState<string>("");
 
-useEffect(() => {
-	(async () => {
-		try {
-			const clients = await fetchClients(); // type is now always Client[]
-			setClients(clients);
-		} catch (err) {
-			console.error("fetchClients failed:", err);
+	useEffect(() => {
+		// Check authentication and operator role
+		const token = localStorage.getItem("token");
+		if (!token) {
+			setAuthError("Please login as operator");
+			return;
 		}
-	})();
-}, []);
 
+		fetch("http://localhost:5000/api/auth/me", {
+			headers: { Authorization: `Bearer ${token}` },
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				if (data.role !== "operator") {
+					setAuthError("Only operators can log waste");
+				}
+			})
+			.catch(() => setAuthError("Auth check failed"));
+	}, []);
+
+	// Fetch clients list
+	useEffect(() => {
+		(async () => {
+			try {
+				const fetchedClients = await fetchClients();
+				setClients(fetchedClients);
+			} catch (err) {
+				console.error("fetchClients failed:", err);
+			}
+		})();
+	}, []);
 
 	async function submit(e: FormEvent) {
 		e.preventDefault();
@@ -86,7 +107,7 @@ useEffect(() => {
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : "Unknown error";
 			setMessage(msg);
-			// eslint-disable-next-line no-console
+			 
 			console.error("submit waste error:", err);
 		}
 	}
@@ -94,6 +115,9 @@ useEffect(() => {
 	return (
 		<div className="max-w-lg mx-auto p-4 bg-white rounded shadow">
 			<h3 className="text-lg font-semibold mb-2">Log Waste Collection</h3>
+
+			{authError && <p className="text-red-600">{authError}</p>}
+
 			<form onSubmit={submit} className="space-y-3">
 				<select
 					className="w-full p-2 border rounded"
