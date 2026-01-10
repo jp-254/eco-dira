@@ -1,5 +1,5 @@
 // client/src/pages/AdminDashboard.tsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { authHeader, clearToken } from "../services/auth";
 import { Link } from "react-router-dom";
 
