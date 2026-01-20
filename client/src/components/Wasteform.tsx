@@ -144,6 +144,7 @@ export default function WasteForm() {
 					<option value="metal">metal</option>
 					<option value="glass">glass</option>
 					<option value="organic">organic</option>
+					<option value="e-waste">e-waste</option>
 					<option value="textile">textile</option>
 				</select>
 
