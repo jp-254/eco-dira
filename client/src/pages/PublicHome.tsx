@@ -66,25 +66,25 @@ export default function PublicHome() {
 						<p className="text-gray-700">Phone Number: +254799263373</p>
 						<div className="mt-3 space-x-3">
 							<a
-								href="https://facebook.com"
+								href="https://www.facebook.com/profile.php?id=61586625882882&mibextid=rS40aB7S9Ucbxw6v"
 								target="_blank"
 								rel="noopener noreferrer"
 								className="underline">
 								Facebook
 							</a>
 							<a
-								href="https://instagram.com"
+								href="https://www.instagram.com/ecodiraservices?igsh=ZXd1NTJrNXV5em02"
 								target="_blank"
 								rel="noopener noreferrer"
 								className="underline">
 								Instagram
 							</a>
 							<a
-								href="https://twitter.com"
+								href="https://vm.tiktok.com/ZSHobSu1FWnnG-8FEsR/"
 								target="_blank"
 								rel="noopener noreferrer"
 								className="underline">
-								Twitter
+								Tiktok
 							</a>
 						</div>
 					</section>
