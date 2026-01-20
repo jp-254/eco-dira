@@ -2,6 +2,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import Client from "../models/Client.js";
+import PointsHistory from "../models/PointsHistory.js";
 
 const router = express.Router();
 
@@ -89,9 +90,12 @@ router.get("/:id/points-history", async (req, res) => {
     // Fetch points history from your database
     // This depends on how you store points history
     // If you have a separate PointsHistory model:
-    const history = await PointsHistory.find({ clientId: id })
-      .sort({ createdAt: -1 }) // Most recent first
-      .limit(50); // Limit to last 50 entries
+   const history = await PointsHistory.find({
+			clientId: new mongoose.Types.ObjectId(id),
+		})
+			.sort({ date: -1 })
+			.limit(50);
+
     
     res.json({ data: history });
   } catch (err) {

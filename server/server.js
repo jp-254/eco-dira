@@ -10,10 +10,11 @@ dotenv.config();
 import authRouter from "./routes/auth.js";
 import pointsRouter from "./routes/points.js";
 import clientsRouter from "./routes/clients.js";
-import wasteRouter from "./routes/Waste.js";
+import wasteRouter from "./routes/waste.js";
 import programsRouter from "./routes/programs.js";
 import leaderboardRouter from "./routes/leaderboard.js"; // ✅ NEW
 import rewardsRouter from "./routes/rewards.js"; // ✅ NEW
+import pointConfigRoutes from "./routes/pointconfig.js";
 // Init app
 const app = express();
 
@@ -29,6 +30,7 @@ app.use("/api/waste", wasteRouter);
 app.use("/api/programs", programsRouter);
 app.use("/api/leaderboard", leaderboardRouter); // ✅ NEW
 app.use("/api/rewards", rewardsRouter); // ✅ NEW
+app.use("/api/point-config", pointConfigRoutes);
 
 // Root route
 app.get("/", (req, res) => {

@@ -47,7 +47,13 @@ router.get("/me", async (req, res) => {
 		const client = await Client.findById(sub).select(
 			"name phone client_id houseNumber pointsBalance"
 		);
-		return res.json({ role, client });
+		return res.json({
+			role: "client",
+			client: {
+				_id: client._id.toString(),
+			},
+		});
+
 	} catch (err) {
 		console.error("GET /auth/me error", err);
 		res.status(500).json({ error: "Server error" });

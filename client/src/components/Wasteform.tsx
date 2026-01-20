@@ -139,10 +139,12 @@ export default function WasteForm() {
 					aria-label="Waste type"
 					onChange={(e) => setForm({ ...form, type: e.target.value })}>
 					<option value="plastic">plastic</option>
-					<option value="white paper">white paper</option>
-					<option value="brown paper">brown paper</option>
+					<option value="whitepaper">white paper</option>
+					<option value="brownpaper">brown paper</option>
 					<option value="metal">metal</option>
 					<option value="glass">glass</option>
+					<option value="organic">organic</option>
+					<option value="textile">textile</option>
 				</select>
 
 				<label className="block">

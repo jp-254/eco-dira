@@ -1,3 +1,4 @@
+// server/models/RedemptionRecord.js
 import mongoose from "mongoose";
 
 const redemptionSchema = new mongoose.Schema({

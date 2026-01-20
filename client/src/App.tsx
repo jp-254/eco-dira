@@ -1,5 +1,5 @@
+// client/src/App.tsx
 import { Routes, Route, Link } from "react-router-dom";
-import { useEffect, useState } from "react";
 import PublicHome from "./pages/PublicHome";
 import RegisterPage from "./pages/Register";
 import Clients from "./pages/Client";
@@ -9,49 +9,13 @@ import ClientLogin from "./pages/ClientLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import ClientProfile from "./pages/ClientProfile";
 import OperatorLogin from "./pages/OperatorLogin";
-
+import AdminClientView from "./pages/AdminClientView";
 import RequireAuth from "./components/RequireAuth";
-
-
-import { API_BASE, getToken } from "./services/auth";
-
-interface AuthUser {
-	role: string;
-	client?: { _id: string };
-	operator?: { _id: string };
-}
+import { useAuth } from "./hooks/useAuth";
 
 export default function App() {
-	const [me, setMe] = useState<AuthUser | null>(null);
-	const [loading, setLoading] = useState(true);
-
-	useEffect(() => {
-		(async () => {
-			const token = getToken();
-			if (!token) {
-				setMe(null);
-				setLoading(false);
-				return;
-			}
-			try {
-				const res = await fetch(`${API_BASE}/api/auth/me`, {
-					headers: { Authorization: `Bearer ${token}` },
-				});
-				if (!res.ok) {
-					setMe(null);
-					setLoading(false);
-					return;
-				}
-				const body = (await res.json()) as AuthUser;
-				setMe(body);
-			} catch (err) {
-				console.error("Failed to fetch user:", err);
-				setMe(null);
-			} finally {
-				setLoading(false);
-			}
-		})();
-	}, []);
+	// 🔥 AUTH NOW COMES FROM CONTEXT (NO FETCHING HERE)
+	const { me, loading } = useAuth();
 
 	if (loading) {
 		return (
@@ -81,6 +45,7 @@ export default function App() {
 							Home
 						</Link>
 
+						{/* NOT LOGGED IN */}
 						{!me && (
 							<>
 								<Link to="/register" className="hover:underline">
@@ -95,16 +60,21 @@ export default function App() {
 							</>
 						)}
 
+						{/* CLIENT */}
 						{me?.role === "client" && me.client && (
 							<Link to={`/client/${me.client._id}`} className="hover:underline">
 								My Profile
 							</Link>
 						)}
+
+						{/* OPERATOR */}
 						{me?.role === "operator" && (
 							<Link to="/log" className="hover:underline">
 								Log Waste
 							</Link>
 						)}
+
+						{/* ADMIN */}
 						{me?.role === "admin" && (
 							<Link to="/admin" className="hover:underline">
 								Admin
@@ -123,6 +93,8 @@ export default function App() {
 
 					<Route path="/admin-login" element={<AdminLogin />} />
 					<Route path="/operator-login" element={<OperatorLogin />} />
+					<Route path="/admin/client/:id" element={<AdminClientView />} />
+
 					<Route
 						path="/admin"
 						element={
@@ -131,6 +103,7 @@ export default function App() {
 							</RequireAuth>
 						}
 					/>
+
 					<Route
 						path="/log"
 						element={

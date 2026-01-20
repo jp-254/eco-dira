@@ -26,8 +26,8 @@ const run = async () => {
 		await Operator.deleteMany({});
 
 		// Use env vars for admin credentials
-		const adminUsername = process.env.ADMIN_USERNAME || "admin";
-		const adminPassword = process.env.ADMIN_PASSWORD || "changeMe123!";
+		const adminUsername = process.env.ADMIN_USERNAME ;
+		const adminPassword = process.env.ADMIN_PASSWORD ;
 		const pwHash = await bcrypt.hash(adminPassword, 10);
 
 		await Admin.create({ username: adminUsername, passwordHash: pwHash });
@@ -38,25 +38,19 @@ const run = async () => {
 				client_id: "c1",
 				houseNumber: "A1",
 				name: "Wanjiru",
-				phone: "+254712345678",
+				phone: "+254700000000",
 				pointsBalance: 0,
 			},
-			{
-				client_id: "c2",
-				houseNumber: "B2",
-				name: "Mwangi",
-				phone: "+254712345679",
-				pointsBalance: 0,
-			},
+			
 		]);
 
 		// Seed operator
-		const operatorPassword = process.env.OPERATOR_PASSWORD || "operator123";
+		const operatorPassword = process.env.OPERATOR_PASSWORD;
 		const operatorHash = await bcrypt.hash(operatorPassword, 10);
 
 		await Operator.create({
-			name: "Operator One",
-			email: "op1@example.com",
+			name: "Operator",
+			email: "ecodiraservices@gmail.com",
 			phone: "+254700000001",
 			passwordHash: operatorHash,
 			role: "operator",

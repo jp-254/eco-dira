@@ -2,6 +2,9 @@
 import { useEffect, useState } from "react";
 import { authHeader, clearToken } from "../services/auth";
 import { Link } from "react-router-dom";
+import Leaderboard from "../components/Leaderboard";
+import Rewards from "../components/Rewards";
+import PointConfigEditor from "../components/PointConfigEditor";
 
 type Client = {
 	_id: string;
@@ -114,9 +117,7 @@ export default function AdminDashboard() {
 									<div className="text-sm">
 										Points: <strong>{c.pointsBalance ?? 0}</strong>
 									</div>
-									<Link
-										to={`/client/${c._id}`}
-										className="text-sm text-blue-600">
+									<Link color="blue" to={`/admin/client/${c._id}`} className="text-blue-600">
 										View
 									</Link>
 								</div>
@@ -124,6 +125,10 @@ export default function AdminDashboard() {
 						))}
 					</div>
 				)}
+			</section>
+
+			<section className="bg-white p-4 rounded shadow">
+				<PointConfigEditor />
 			</section>
 
 			<section className="bg-white p-4 rounded shadow">
@@ -153,6 +158,13 @@ export default function AdminDashboard() {
 						))}
 					</div>
 				)}
+			</section>
+			<section className="bg-white p-4 rounded shadow">
+				<Leaderboard />
+			</section>
+
+			<section className="bg-white p-4 rounded shadow">
+				<Rewards />
 			</section>
 		</div>
 	);

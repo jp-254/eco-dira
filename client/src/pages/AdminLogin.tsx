@@ -1,3 +1,4 @@
+// client/src/pages/AdminLogin.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { adminLogin } from "../services/auth";

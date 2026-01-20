@@ -19,6 +19,7 @@ const seed = async () => {
 			{ type: "brownpaper", pointsPerKg: 5 },
 			{ type: "organic", pointsPerKg: 2 },
 			{ type: "e-waste", pointsPerKg: 5 },
+			{ type: "textile", pointsPerKg: 3 },
 		]);
 
 		console.log("🌱 PointConfig seeded successfully");

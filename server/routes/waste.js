@@ -1,3 +1,4 @@
+// server/routes/Waste.js
 import express from "express";
 import WasteRecord from "../models/WasteRecord.js";
 import Client from "../models/Client.js";

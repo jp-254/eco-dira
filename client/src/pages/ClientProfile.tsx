@@ -1,7 +1,9 @@
 // client/src/pages/ClientProfile.tsx
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import { authHeader } from "../services/auth";
+import { useAuth } from "../hooks/useAuth";
+import Leaderboard from "../components/Leaderboard";
+import Rewards from "../components/Rewards";
 
 export type Client = {
 	_id: string;
@@ -32,14 +34,20 @@ export type WasteRecord = {
 };
 
 export default function ClientProfile() {
-	const { id } = useParams<{ id: string }>();
+	const { me } = useAuth(); // 🔥 SOURCE OF TRUTH
 	const [client, setClient] = useState<Client | null>(null);
 	const [history, setHistory] = useState<PointsHistoryItem[]>([]);
 	const [latestWaste, setLatestWaste] = useState<WasteRecord | null>(null);
-	const [loading, setLoading] = useState<boolean>(false);
+	const [loading, setLoading] = useState(false);
+	const [redeemMsg, setRedeemMsg] = useState("");
+	const [redeeming, setRedeeming] = useState(false);
 
 	useEffect(() => {
-		if (!id) return;
+		// 🔐 HARD GUARD (prevents undefined calls)
+		if (!me || me.role !== "client" || !me.client?._id) return;
+
+		// ✅ ALWAYS USE Mongo _id
+		const clientId = me.client._id;
 
 		async function load() {
 			setLoading(true);
@@ -47,62 +55,99 @@ export default function ClientProfile() {
 				const base = import.meta.env.VITE_API_BASE;
 
 				// Fetch client
-				const cRes = await fetch(`${base}/api/clients/${id}`, {
-					headers: { "Content-Type": "application/json", ...authHeader() },
+				const cRes = await fetch(`${base}/api/clients/${clientId}`, {
+					headers: { ...authHeader() },
 				});
+				if (!cRes.ok) throw new Error("Client not found");
 
-				if (cRes.ok) {
-					const json = await cRes.json();
-					const clientData: Client = json.data ?? json;
-					setClient(clientData);
+				const cJson = await cRes.json();
+				setClient(cJson.data ?? cJson);
 
-					// Fetch points history
-					const historyRes = await fetch(
-						`${base}/api/clients/${id}/points-history`,
-						{
-							headers: { "Content-Type": "application/json", ...authHeader() },
-						}
-					);
+				// Fetch points history
+				const hRes = await fetch(
+					`${base}/api/clients/${clientId}/points-history`,
+					{ headers: authHeader() }
+				);
+				if (hRes.ok) {
+					const hJson = await hRes.json();
+					setHistory(hJson.data ?? []);
+				}
 
-					if (historyRes.ok) {
-						const historyJson = await historyRes.json();
-						setHistory(historyJson.data ?? []);
-					}
-
-					// Fetch latest waste record for location
-					const wasteRes = await fetch(
-						`${base}/api/waste?clientId=${id}&limit=1&sort=-createdAt`,
-						{
-							headers: { "Content-Type": "application/json", ...authHeader() },
-						}
-					);
-
-					if (wasteRes.ok) {
-						const wasteJson = await wasteRes.json();
-						const wasteData = wasteJson.data ?? wasteJson;
-						if (Array.isArray(wasteData) && wasteData.length > 0) {
-							setLatestWaste(wasteData[0]);
-						}
+				// Fetch latest waste record
+				const wRes = await fetch(
+					`${base}/api/waste?clientId=${clientId}&limit=1&sort=-createdAt`,
+					{ headers: authHeader() }
+				);
+				if (wRes.ok) {
+					const wJson = await wRes.json();
+					if (Array.isArray(wJson.data) && wJson.data.length > 0) {
+						setLatestWaste(wJson.data[0]);
 					}
 				}
 			} catch (err) {
-				console.error("Failed to fetch client:", err);
+				console.error("Failed to load client profile", err);
+				setClient(null);
 			} finally {
 				setLoading(false);
 			}
 		}
 
 		load();
-	}, [id]);
+	}, [me]);
 
-	// Render loading state or client details
+	const handleRedeem = async (reward: {
+		_id: string;
+		name: string;
+		minPoints: number;
+		maxPoints: number;
+	}) => {
+		if (!client) return;
+
+		if ((client.pointsBalance ?? 0) < reward.minPoints) {
+			setRedeemMsg("Not enough points for this reward");
+			return;
+		}
+
+		if (!confirm(`Redeem "${reward.name}"?`)) return;
+
+		try {
+			setRedeeming(true);
+			setRedeemMsg("");
+
+			const res = await fetch(
+				`${import.meta.env.VITE_API_BASE}/api/points/redeem`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						...authHeader(),
+					},
+					body: JSON.stringify({
+						clientId: client._id, // ✅ Mongo _id
+						pointsUsed: reward.minPoints,
+						rewardDesc: reward.name,
+					}),
+				}
+			);
+
+			const json = await res.json();
+			if (!res.ok) throw new Error(json.error || "Redeem failed");
+
+			setRedeemMsg("✅ Redemption request sent for approval");
+		} catch (err) {
+			setRedeemMsg(err instanceof Error ? err.message : "Failed to redeem");
+		} finally {
+			setRedeeming(false);
+		}
+	};
+
 	if (loading) return <div>Loading...</div>;
 	if (!client) return <div>No client found.</div>;
 
-	// Prefer latest waste record location if present, otherwise use client location
-	const location = (latestWaste?.location?.lat && latestWaste?.location?.lon) 
-		? latestWaste.location 
-		: client.location;
+	const location =
+		latestWaste?.location?.lat && latestWaste?.location?.lon
+			? latestWaste.location
+			: client.location;
 
 	return (
 		<div className="space-y-4">
@@ -122,46 +167,38 @@ export default function ClientProfile() {
 				{history.length === 0 ? (
 					<div className="text-sm text-gray-500">No history available</div>
 				) : (
-					<div className="space-y-2">
-						{history.map((h) => (
-							<div key={h._id} className="text-sm border p-2 rounded">
-								<div>
-									{h.change > 0 ? `+${h.change}` : h.change} pts •{" "}
-									{h.reason ?? "—"}
-								</div>
-								<div className="text-xs text-gray-500">
-									{h.date ? new Date(h.date).toLocaleString() : "—"}
-								</div>
+					history.map((h) => (
+						<div key={h._id} className="text-sm border p-2 rounded">
+							<div>
+								{h.change > 0 ? `+${h.change}` : h.change} pts •{" "}
+								{h.reason ?? "—"}
 							</div>
-						))}
-					</div>
+							<div className="text-xs text-gray-500">
+								{h.date ? new Date(h.date).toLocaleString() : "—"}
+							</div>
+						</div>
+					))
 				)}
 			</div>
 
-			{/* Render map if location is available */}
-			{location?.lat && location?.lon && (
-				<div className="mt-4 bg-white p-4 rounded shadow">
-					<h4 className="font-semibold mb-2">Collection Location</h4>
-					<div className="mt-2">
-						{/* Embedded Google Maps iframe */}
-						<iframe
-							title="client-location"
-							width="100%"
-							height="260"
-							src={`https://www.google.com/maps?q=${location.lat},${location.lon}&z=15&output=embed`}
-							className="border rounded"
-						></iframe>
+			<Leaderboard />
+			<Rewards onRedeem={handleRedeem} />
 
-						{/* Link to open in Google Maps */}
-						<a>
-							className="inline-block mt-2 text-sm text-blue-600 hover:underline"
-							target="_blank"
-							rel="noopener noreferrer"
-							href={`https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lon}`}
-						
-							Open in Google Maps ;.
-						</a>
-					</div>
+			{redeemMsg && <p className="text-sm text-gray-700">{redeemMsg}</p>}
+			{redeeming && (
+				<p className="text-sm text-gray-500">Submitting redemption…</p>
+			)}
+
+			{location?.lat && location?.lon && (
+				<div className="bg-white p-4 rounded shadow">
+					<h4 className="font-semibold mb-2">Collection Location</h4>
+					<iframe
+						title="client-location"
+						width="100%"
+						height="260"
+						src={`https://www.google.com/maps?q=${location.lat},${location.lon}&z=15&output=embed`}
+						className="border rounded"
+					/>
 				</div>
 			)}
 		</div>

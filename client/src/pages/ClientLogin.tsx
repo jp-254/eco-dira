@@ -1,12 +1,15 @@
+// client/src/pages/ClientLogin.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { API_BASE, TOKEN_KEY } from "../services/auth";
+import { API_BASE } from "../services/auth";
+import { useAuth } from "../hooks/useAuth";
 
 export default function ClientLogin() {
 	const [phone, setPhone] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
-	const nav = useNavigate();
+	const navigate = useNavigate();
+	const { login } = useAuth();
 
 	async function submit(e: React.FormEvent) {
 		e.preventDefault();
@@ -18,12 +21,15 @@ export default function ClientLogin() {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ phone, password }),
 			});
-			const body = await res.json();
 
+			const body = await res.json();
 			if (!res.ok) throw new Error(body.error || "Login failed");
 
-			localStorage.setItem(TOKEN_KEY, body.token);
-			nav(`/client/${body.client._id}`, { replace: true });
+			// Update auth context
+			await login(body.token);
+
+			// 🔥 USE Mongo _id ONLY
+			navigate(`/client/${body.client._id}`, { replace: true });
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Login failed");
 		}

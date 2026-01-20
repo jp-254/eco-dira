@@ -12,9 +12,7 @@ export default function RequireAuth({
 	const { me, loading } = useAuth();
 
 	if (loading) return <div>Loading...</div>;
-
 	if (!me) return <Navigate to="/" replace />;
-
 	if (me.role !== role) return <Navigate to="/" replace />;
 
 	return children;
