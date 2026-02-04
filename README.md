@@ -1,6 +1,6 @@
 ♻️ ECO DIRA – Waste Management & Rewards Platform
 
-ECO DIRA is a role-based waste management web application that incentivizes proper waste disposal through a points and rewards system.
+ECO DIRA is a role-based waste management web application that incentivizes proper waste disposal through a points/rewards system and overall weight tracking per waste type.
 It supports Clients, Operators, and Admins, each with distinct access and functionality.
 
 This repository contains the full-stack implementation using React + TypeScript (Vite) on the frontend and Node.js + Express + MongoDB on the backend.
@@ -201,9 +201,9 @@ Roles are enforced both frontend and backend
 
 Codebase is TypeScript-safe and lint-clean
 
-📌 Future Enhancements (Optional)
+📌Possible  Future Enhancements (Depending on developer and client agreement)
 
-Admin dashboard
+childrens page & agriculture page
 
 Push notifications
 
