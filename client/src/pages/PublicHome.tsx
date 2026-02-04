@@ -11,7 +11,7 @@ export default function PublicHome() {
 				<div className="space-y-12 p-6 max-w-4xl mx-auto">
 					<header className="text-center py-12">
 						<h1 className="text-4xl font-bold">ECO DIRA ♻️🌍</h1>
-						<p className="mt-3 text-blue-600">
+						<p className="mt-3 text-blue-600">      
 							Recycling education & rewards for Kenyan homes. Eco Dira —
 							promoting recycling and sustainable waste management across Kenya.
 							Recycle Today, Sustain Tomorrow ♻🙂‍↕

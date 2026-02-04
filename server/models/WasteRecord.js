@@ -1,3 +1,4 @@
+// server/models/WasteRecord.js
 import mongoose from "mongoose";
 
 const wasteRecordSchema = new mongoose.Schema({

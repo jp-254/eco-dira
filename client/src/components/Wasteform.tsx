@@ -21,7 +21,11 @@ interface WastePayload {
 
 export default function WasteForm() {
 	const [clients, setClients] = useState<Client[]>([]);
+	const [filteredClients, setFilteredClients] = useState<Client[]>([]);
+	const [search, setSearch] = useState("");
 	const [authError, setAuthError] = useState("");
+	const [message, setMessage] = useState<string>("");
+
 	const [form, setForm] = useState({
 		clientId: "",
 		type: "plastic",
@@ -30,10 +34,9 @@ export default function WasteForm() {
 		lon: "",
 		operatorId: "",
 	});
-	const [message, setMessage] = useState<string>("");
 
+	// Check authentication and operator role
 	useEffect(() => {
-		// Check authentication and operator role
 		const token = localStorage.getItem("token");
 		if (!token) {
 			setAuthError("...");
@@ -58,11 +61,28 @@ export default function WasteForm() {
 			try {
 				const fetchedClients = await fetchClients();
 				setClients(fetchedClients);
+				setFilteredClients(fetchedClients);
 			} catch (err) {
 				console.error("fetchClients failed:", err);
 			}
 		})();
 	}, []);
+
+	// Filter clients by name + house number
+	useEffect(() => {
+		if (!search) {
+			setFilteredClients(clients);
+			return;
+		}
+
+		const q = search.toLowerCase();
+
+		setFilteredClients(
+			clients.filter((c) =>
+				`${c.name ?? ""} ${c.houseNumber ?? ""}`.toLowerCase().includes(q),
+			),
+		);
+	}, [search, clients]);
 
 	async function submit(e: FormEvent) {
 		e.preventDefault();
@@ -87,7 +107,6 @@ export default function WasteForm() {
 				body: JSON.stringify(payload),
 			});
 
-			// parse response (defensive)
 			const json = await (async () => {
 				try {
 					return await res.json();
@@ -107,7 +126,6 @@ export default function WasteForm() {
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : "Unknown error";
 			setMessage(msg);
-			 
 			console.error("submit waste error:", err);
 		}
 	}
@@ -119,20 +137,42 @@ export default function WasteForm() {
 			{authError && <p className="text-red-600">{authError}</p>}
 
 			<form onSubmit={submit} className="space-y-3">
-				<select
-					className="w-full p-2 border rounded"
-					value={form.clientId}
-					onChange={(e) => setForm({ ...form, clientId: e.target.value })}
-					aria-label="Select client"
-					required>
-					<option value="">Select client</option>
-					{clients.map((c) => (
-						<option key={c._id ?? c.client_id} value={c._id ?? c.client_id}>
-							{c.name ?? "—"} — {c.houseNumber ?? ""}
-						</option>
-					))}
-				</select>
+				{/* SEARCHABLE CLIENT SELECT */}
+				<div className="relative">
+					<input
+						type="text"
+						placeholder="Search client (name + house number)"
+						className="w-full p-2 border rounded"
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
+						required
+					/>
 
+					{search && (
+						<ul className="absolute z-10 w-full bg-white border rounded max-h-48 overflow-y-auto">
+							{filteredClients.length === 0 && (
+								<li className="p-2 text-gray-500">No clients found</li>
+							)}
+
+							{filteredClients.map((c) => (
+								<li
+									key={c._id ?? c.client_id}
+									className="p-2 hover:bg-green-100 cursor-pointer"
+									onClick={() => {
+										setForm({
+											...form,
+											clientId: c._id ?? c.client_id ?? "",
+										});
+										setSearch(`${c.name ?? "—"} — ${c.houseNumber ?? ""}`);
+									}}>
+									{c.name ?? "—"} — {c.houseNumber ?? ""}
+								</li>
+							))}
+						</ul>
+					)}
+				</div>
+
+				{/* WASTE TYPE */}
 				<select
 					className="w-full p-2 border rounded"
 					value={form.type}
@@ -148,6 +188,7 @@ export default function WasteForm() {
 					<option value="textile">textile</option>
 				</select>
 
+				{/* WEIGHT */}
 				<label className="block">
 					<span className="text-gray-700">Weight (kg)</span>
 					<input
@@ -158,11 +199,11 @@ export default function WasteForm() {
 						onChange={(e) =>
 							setForm({ ...form, weightKg: Number(e.target.value) })
 						}
-						aria-label="Weight in kilograms"
 						required
 					/>
 				</label>
 
+				{/* LOCATION */}
 				<div className="flex space-x-2">
 					<input
 						placeholder="lat"
@@ -178,6 +219,7 @@ export default function WasteForm() {
 					/>
 				</div>
 
+				{/* OPERATOR ID */}
 				<input
 					placeholder="operator id (optional)"
 					className="w-full p-2 border rounded"
@@ -191,6 +233,7 @@ export default function WasteForm() {
 					Submit
 				</button>
 			</form>
+
 			{message && <p className="mt-3">{message}</p>}
 		</div>
 	);

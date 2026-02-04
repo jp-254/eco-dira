@@ -26,6 +26,7 @@ export default function Register() {
 		password: "",
 	});
 	const [msg, setMsg] = useState("");
+	const [showPassword, setShowPassword] = useState(false);
 
 	async function submit(e: React.FormEvent) {
 		e.preventDefault();
@@ -57,16 +58,12 @@ export default function Register() {
 	return (
 		<div className="flex justify-center py-10">
 			<div className="w-full max-w-lg bg-white shadow p-6 rounded">
-				<h1 className="text-2xl font-bold mb-4">
-					Register — ECO DIRA ♻️
-				</h1>
+				<h1 className="text-2xl font-bold mb-4">Register — ECO DIRA ♻️</h1>
 
 				<form onSubmit={submit} className="space-y-3">
 					<input
 						value={form.name}
-						onChange={(e) =>
-							setForm({ ...form, name: e.target.value })
-						}
+						onChange={(e) => setForm({ ...form, name: e.target.value })}
 						required
 						className="w-full p-2 border rounded"
 						placeholder="Full name"
@@ -74,9 +71,7 @@ export default function Register() {
 
 					<input
 						value={form.phone}
-						onChange={(e) =>
-							setForm({ ...form, phone: e.target.value })
-						}
+						onChange={(e) => setForm({ ...form, phone: e.target.value })}
 						required
 						className="w-full p-2 border rounded"
 						placeholder="Phone (e.g. +2547...)"
@@ -84,9 +79,7 @@ export default function Register() {
 
 					<input
 						value={form.houseNumber}
-						onChange={(e) =>
-							setForm({ ...form, houseNumber: e.target.value })
-						}
+						onChange={(e) => setForm({ ...form, houseNumber: e.target.value })}
 						required
 						className="w-full p-2 border rounded"
 						placeholder="House / Plot number"
@@ -94,29 +87,32 @@ export default function Register() {
 
 					<input
 						value={form.email}
-						onChange={(e) =>
-							setForm({ ...form, email: e.target.value })
-						}
+						onChange={(e) => setForm({ ...form, email: e.target.value })}
 						className="w-full p-2 border rounded"
 						placeholder="Email (optional)"
 					/>
 
-					<input
-						type="password"
-						value={form.password}
-						onChange={(e) =>
-							setForm({ ...form, password: e.target.value })
-						}
-						required
-						minLength={6}
-						className="w-full p-2 border rounded"
-						placeholder="Create password (min 6 chars)"
-					/>
+					<div className="relative">
+						<input
+							type={showPassword ? "text" : "password"}
+							value={form.password}
+							onChange={(e) => setForm({ ...form, password: e.target.value })}
+							required
+							minLength={6}
+							className="w-full p-2 border rounded"
+							placeholder="Create password (min 6 chars)"
+						/>
+						<button
+							type="button"
+							onClick={() => setShowPassword(!showPassword)}
+							className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800">
+							{showPassword ? "🙈 Hide" : "👁️ Show"}
+						</button>
+					</div>
 
 					<button
 						type="submit"
-						className="bg-green-700 text-white w-full p-2 rounded"
-					>
+						className="bg-green-700 text-white w-full p-2 rounded">
 						Register
 					</button>
 				</form>

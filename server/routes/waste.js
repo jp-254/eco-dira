@@ -80,4 +80,41 @@ router.get("/", requireAuth(), async (req, res) => {
     }
 });
 
+// GET total weight per waste type (admin)
+router.get(
+    "/summary/by-type",
+    requireAuth("admin"),
+    async (req, res) => {
+        try {
+            const summary = await WasteRecord.aggregate([
+                {
+                    $group: {
+                        _id: "$type",
+                        totalWeight: { $sum: "$weightKg" },
+                        count: { $sum: 1 }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        type: "$_id",
+                        totalWeight: 1,
+                        count: 1
+                    }
+                },
+                {
+                    $sort: { type: 1 }
+                }
+            ]);
+
+            res.json(summary);
+        } catch (err) {
+            console.error("GET /api/waste/summary/by-type error:", err);
+            res.status(500).json({ error: "Failed to fetch waste summary" });
+        }
+    }
+);
+
+
+
 export default router;

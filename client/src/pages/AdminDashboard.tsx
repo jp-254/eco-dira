@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import Leaderboard from "../components/Leaderboard";
 import Rewards from "../components/Rewards";
 import PointConfigEditor from "../components/PointConfigEditor";
+import WasteSummary from "../components/WasteSummary";
 
 type Client = {
 	_id: string;
@@ -27,6 +28,13 @@ export default function AdminDashboard() {
 	const [redemptions, setRedemptions] = useState<Redemption[]>([]);
 	const [loading, setLoading] = useState(false);
 
+	// 🔍 Helper: map clientId → name + houseNumber
+	function getClientLabel(clientId: string) {
+		const client = clients.find((c) => c._id === clientId);
+		if (!client) return "Unknown client";
+		return `${client.name ?? "—"} — ${client.houseNumber ?? "—"}`;
+	}
+
 	async function loadData() {
 		setLoading(true);
 		try {
@@ -42,7 +50,7 @@ export default function AdminDashboard() {
 				`${import.meta.env.VITE_API_BASE}/api/points/pending/all`,
 				{
 					headers: { "Content-Type": "application/json", ...authHeader() },
-				}
+				},
 			);
 			const rJson = await rRes.json();
 			setRedemptions(rJson || []);
@@ -66,7 +74,7 @@ export default function AdminDashboard() {
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json", ...authHeader() },
-				}
+				},
 			);
 			if (!res.ok) {
 				const b = await res.json().catch(() => ({}));
@@ -117,7 +125,7 @@ export default function AdminDashboard() {
 									<div className="text-sm">
 										Points: <strong>{c.pointsBalance ?? 0}</strong>
 									</div>
-									<Link color="blue" to={`/admin/client/${c._id}`} className="text-blue-600">
+									<Link to={`/admin/client/${c._id}`} className="text-blue-600">
 										View
 									</Link>
 								</div>
@@ -144,7 +152,8 @@ export default function AdminDashboard() {
 								<div>
 									<div className="font-medium">{r.rewardDesc}</div>
 									<div className="text-sm text-gray-500">
-										Client: {r.clientId} • Points: {r.pointsUsed}
+										Client: {getClientLabel(r.clientId)} • Points:{" "}
+										{r.pointsUsed}
 									</div>
 								</div>
 								<div>
@@ -159,12 +168,17 @@ export default function AdminDashboard() {
 					</div>
 				)}
 			</section>
+
 			<section className="bg-white p-4 rounded shadow">
 				<Leaderboard />
 			</section>
 
 			<section className="bg-white p-4 rounded shadow">
 				<Rewards />
+			</section>
+
+			<section className="bg-white p-4 rounded shadow">
+				<WasteSummary />
 			</section>
 		</div>
 	);
