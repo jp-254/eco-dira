@@ -48,11 +48,17 @@ Waste collection logging (linked to clients)
 
 Role-restricted API access
 
-🧑‍💼 Admin (Extensible)
+🧑‍💼 Admin (current features)
+secure admin login
+admin-specific dashboard & navigation
+admin can:
+view individual client profiles
+points configuration feature wherby admin can edit values of recyclables(points)
+approve pending client reward redemptions
+view rewards section and client leaderboards
+view weight tracking feature which shows the total weight coolected in kg for each recyclable 
 
-Backend role support included
 
-Ready for future admin dashboards & controls
 
 🏗️ Tech Stack
 Frontend:
@@ -83,8 +89,11 @@ RESTful API architecture
 
 📁 Project Structure
 eco-dira/
-├── client/                  # Frontend (React + TS)
-│   ├── src/
+├── client/ 
+|   |- public
+│   | -assets
+|   |- auth
+|   ├── src/
 │   │   ├── components/       # Reusable UI components
 │   │   ├── hooks/            # Custom hooks (useAuth)
 │   │   ├── pages/            # Route-level pages
@@ -98,7 +107,7 @@ eco-dira/
 │   ├── routes/               # API routes
 │   ├── middleware/           # Auth & role guards
 │   └── server.js
-│  
+│   
 │
 └── README.md
 
@@ -171,11 +180,11 @@ Backend responses support { data } or direct objects
 
 🧪 Environment Variables
 Frontend (client/.env)
-VITE_API_BASE=http://localhost:5000
+VITE_API_BASE=http://localhost:5000(to be chnaged to the actual server api URL)
 
 Backend (server/.env)
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/eco-dira
+MONGO_URI=mongodb########
 JWT_SECRET=your_secret_here
 
 ▶️ Running the Project Locally
