@@ -7,7 +7,9 @@ import { useAuth } from "../hooks/useAuth";
 export default function ClientLogin() {
 	const [phone, setPhone] = useState("");
 	const [password, setPassword] = useState("");
+	const [showPassword, setShowPassword] = useState(false);
 	const [error, setError] = useState("");
+
 	const navigate = useNavigate();
 	const { login } = useAuth();
 
@@ -25,10 +27,8 @@ export default function ClientLogin() {
 			const body = await res.json();
 			if (!res.ok) throw new Error(body.error || "Login failed");
 
-			// Update auth context
 			await login(body.token);
 
-			// 🔥 USE Mongo _id ONLY
 			navigate(`/client/${body.client._id}`, { replace: true });
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Login failed");
@@ -46,13 +46,22 @@ export default function ClientLogin() {
 				placeholder="Phone"
 			/>
 
-			<input
-				type="password"
-				value={password}
-				onChange={(e) => setPassword(e.target.value)}
-				className="border p-2 w-full"
-				placeholder="Password"
-			/>
+			<div className="relative">
+				<input
+					type={showPassword ? "text" : "password"}
+					value={password}
+					onChange={(e) => setPassword(e.target.value)}
+					className="border p-2 w-full"
+					placeholder="Password"
+				/>
+
+				<button
+					type="button"
+					onClick={() => setShowPassword(!showPassword)}
+					className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-600">
+					{showPassword ? "Hide" : "Show"}
+				</button>
+			</div>
 
 			<button
 				type="submit"

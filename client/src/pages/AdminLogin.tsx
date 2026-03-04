@@ -10,6 +10,7 @@ export default function AdminLogin() {
 
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
+	const [showPassword, setShowPassword] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
 	async function handleSubmit(e: React.FormEvent) {
@@ -19,7 +20,6 @@ export default function AdminLogin() {
 		try {
 			const res = await adminLogin({ username, password });
 
-			// 🔑 THIS IS THE KEY FIX
 			await login(res.token);
 
 			navigate("/admin", { replace: true });
@@ -39,13 +39,22 @@ export default function AdminLogin() {
 				placeholder="Username"
 			/>
 
-			<input
-				type="password"
-				value={password}
-				onChange={(e) => setPassword(e.target.value)}
-				className="border p-2 w-full mb-3"
-				placeholder="Password"
-			/>
+			<div className="relative mb-3">
+				<input
+					type={showPassword ? "text" : "password"}
+					value={password}
+					onChange={(e) => setPassword(e.target.value)}
+					className="border p-2 w-full"
+					placeholder="Password"
+				/>
+
+				<button
+					type="button"
+					onClick={() => setShowPassword(!showPassword)}
+					className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-600">
+					{showPassword ? "Hide" : "Show"}
+				</button>
+			</div>
 
 			<button className="bg-green-600 text-white p-2 rounded w-full">
 				Login

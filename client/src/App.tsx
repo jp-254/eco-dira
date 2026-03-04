@@ -31,7 +31,7 @@ export default function App() {
 				<div className="container mx-auto flex justify-between items-center">
 					<div className="flex items-center">
 						<img
-							src="/images/eco logo.jpeg"
+							src="/images/ecologo.jpeg"
 							alt="ECO DIRA logo"
 							className="h-8 w-8 mr-3"
 						/>

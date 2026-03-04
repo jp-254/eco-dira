@@ -1,3 +1,4 @@
+// server.js - Main entry point for ECO DIRA backend
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
@@ -19,7 +20,32 @@ import pointConfigRoutes from "./routes/pointconfig.js";
 const app = express();
 
 // Middleware
-app.use(cors({ origin: true }));
+// CORS configuration
+const allowedOrigins = [
+	"https://ecodira.co.ke",
+	"https://www.ecodira.co.ke",
+	"http://localhost:5173"
+];
+
+app.use(cors({
+	origin: function (origin, callback) {
+		// allow requests with no origin (like mobile apps, curl, postman)
+		if (!origin) return callback(null, true);
+
+		if (allowedOrigins.includes(origin)) {
+			return callback(null, true);
+		} else {
+			return callback(new Error("Not allowed by CORS"));
+		}
+	},
+	methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+	allowedHeaders: ["Content-Type", "Authorization"],
+	credentials: true
+}));
+
+// Handle preflight requests explicitly
+app.options("*", cors());
+
 app.use(express.json());
 
 // Routes
