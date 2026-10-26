@@ -180,12 +180,12 @@ Backend responses support { data } or direct objects
 
 🧪 Environment Variables
 Frontend (client/.env)
-VITE_API_BASE=http://localhost:5000(to be chnaged to the actual server api URL)
+VITE_API_BASE=http:// (changed to the actual server api URL)
 
 Backend (server/.env)
 PORT=5000
 MONGO_URI=mongodb########
-JWT_SECRET=your_secret_here
+JWT_SECRET=........
 
 ▶️ Running the Project Locally
 Backend
